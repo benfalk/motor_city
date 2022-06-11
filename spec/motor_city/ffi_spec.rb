@@ -7,4 +7,9 @@ RSpec.describe MotorCity::FFI do
     subject { described_class.add(left, right) }
     it { is_expected.to eq(5) }
   end
+
+  describe "#hello" do
+    subject { described_class.hello }
+    it { is_expected.to eq("hello world") }
+  end
 end
