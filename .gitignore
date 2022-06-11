@@ -10,6 +10,8 @@
 # rspec failure tracking
 .rspec_status
 
+# artificat of building on system
+/lib/motor_city/libmotor_city.so
 
 # Added by cargo
 /target
