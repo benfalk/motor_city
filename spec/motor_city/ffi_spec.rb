@@ -8,8 +8,8 @@ RSpec.describe MotorCity::FFI do
     it { is_expected.to eq(5) }
   end
 
-  describe "#hello" do
-    subject { described_class.hello }
-    it { is_expected.to eq("hello world") }
+  describe "#db_url" do
+    subject { described_class.db_url }
+    it { is_expected.to eq(ENV.fetch("DB_URL", "")) }
   end
 end
