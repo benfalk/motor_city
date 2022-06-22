@@ -10,3 +10,4 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+diesel = { version = "1.4.4", features = ["postgres"] }

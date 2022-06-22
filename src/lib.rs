@@ -1,3 +1,9 @@
+#[macro_use]
+extern crate diesel;
+
+mod schema;
+mod models;
+
 use std::env;
 use std::ffi::CString;
 
