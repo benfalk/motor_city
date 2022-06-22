@@ -12,6 +12,8 @@
 
 # artificat of building on system
 /lib/motor_city/libmotor_city.so
+/lib/motor_city/libmotor_city.dylib
+/lib/motor_city/libmotor_city.dll
 
 # Added by cargo
 /target
