@@ -1,39 +1,33 @@
 # MotorCity
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/motor_city`. To experiment with that code, run `bin/console` for an interactive prompt.
+<img src="./media/motor-city.jpg" />
 
-TODO: Delete this and the text above, and describe your gem
+> Project to demonstrate how to use the popular Rust ORM Diesel in Ruby.
 
-## Installation
+## Requirements
 
-Add this line to your application's Gemfile:
+ * Ruby 2.7.5+ or 3.1.1+
+ * Rust 1.60.0+
+ * Postgres 11+
 
-```ruby
-gem 'motor_city'
-```
+## Getting Ready
 
-And then execute:
+1. Ensure the Diesel CLI is setup:
 
-    $ bundle install
+   ```bash
+   cargo install diesel_cli --no-default-features --features postgres
+   ```
 
-Or install it yourself as:
+2. Modify or ensure credentials in `.env` has access to create a database
 
-    $ gem install motor_city
+3. Create database and structure:
 
-## Usage
+   ```bash
+   diesel database setup
+   ```
 
-TODO: Write usage instructions here
+4. Make sure the gem builds and everything passes:
 
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/motor_city.
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+   ```bash
+   bundle exec rake
+   ```
