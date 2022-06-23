@@ -26,7 +26,12 @@
    diesel database setup
    ```
 
-4. Make sure the gem builds and everything passes:
+4. Install gem dependencies
+
+   ```bash
+   bundle install
+   ```
+5. Make sure the gem builds and everything passes:
 
    ```bash
    bundle exec rake
