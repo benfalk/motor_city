@@ -10,4 +10,5 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-diesel = { version = "1.4.4", features = ["postgres"] }
+diesel = { version = "1.4.4", features = ["postgres", "r2d2"] }
+lazy_static = "1.4"

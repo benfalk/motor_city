@@ -11,7 +11,7 @@ module MotorCity
   module FFI
     extend ::FFI::Library
     ffi_lib File.expand_path("libmotor_city.#{::FFI::Platform::LIBSUFFIX}", __dir__)
-    attach_function :add, %i[uint uint], :uint
     attach_function :db_url, [], :string
+    attach_function :connection_ok, [], :bool
   end
 end

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "dotenv/load"
 require_relative "motor_city/version"
 require_relative "motor_city/ffi"
 

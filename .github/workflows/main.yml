@@ -16,12 +16,37 @@ jobs:
         ruby:
           - '3.1.1'
 
+    services:
+      postgres_server:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
+
+    - name: Install Diesel CLI
+      run: cargo install diesel_cli --no-default-features --features postgres
+
+    - name: Diesel Database Setup
+      run: diesel database setup
+      env:
+        DATABASE_URL: postgres://postgres:password@localhost/diesel_demo
+
     - name: Run the default task
       run: bundle exec rake
+      env:
+        DATABASE_URL: postgres://postgres:password@localhost/diesel_demo
