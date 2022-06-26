@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "motor_city"
+require "rspec/its"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

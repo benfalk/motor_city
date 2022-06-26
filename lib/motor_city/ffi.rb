@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "ffi"
-
 module MotorCity
   # Foreign Function Interface
   #
@@ -13,5 +11,8 @@ module MotorCity
     ffi_lib File.expand_path("libmotor_city.#{::FFI::Platform::LIBSUFFIX}", __dir__)
     attach_function :db_url, [], :string
     attach_function :connection_ok, [], :bool
+
+    attach_function :find_post, [:int32], :pointer, blocking: false
+    attach_function :free_post, [:pointer], :void
   end
 end
