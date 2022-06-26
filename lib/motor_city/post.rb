@@ -13,9 +13,12 @@ module MotorCity
       FFI.free_post(ptr)
     end
 
-    # @return [MotorCity::Post]
+    # @return [MotorCity::Post, nil]
     def self.find(id)
-      new(FFI.find_post(id))
+      pointer = FFI.find_post(id)
+      return if pointer.null?
+
+      new(pointer)
     end
   end
 end

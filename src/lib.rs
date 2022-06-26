@@ -46,14 +46,13 @@ extern "C" fn find_post(id_val: i32) -> *mut models::RubyPost {
     let pool = DB_POOL.clone();
     let connection = pool.get().unwrap();
 
-    let ruby_post =
-        posts
-            .find(id_val)
-            .first::<models::Post>(&connection)
-            .unwrap()
-            .into();
+    let maybe_post = posts.find(id_val).first::<models::Post>(&connection);
 
-    Box::into_raw(Box::new(ruby_post))
+    if maybe_post.is_ok() {
+        return Box::into_raw(Box::new(maybe_post.unwrap().into()));
+    }
+
+    std::ptr::null_mut()
 }
 
 #[no_mangle]
