@@ -12,7 +12,7 @@ module MotorCity
     attach_function :db_url, [], :string
     attach_function :connection_ok, [], :bool
 
-    attach_function :find_post, [:int32], :pointer, blocking: false
+    attach_function :find_post, [:int32], :pointer, blocking: true
     attach_function :free_post, [:pointer], :void
   end
 end

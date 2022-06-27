@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "motor_city"
+
+KNOWN_IDS = [1, 2, 3].freeze
+
+threads = (1..50).map do |num|
+  Thread.new do
+    300.times do
+      post = MotorCity::Post.find(KNOWN_IDS.sample)
+      puts "[#{num}] #{post[:title]}"
+    end
+  end
+end
+
+threads.each(&:join)

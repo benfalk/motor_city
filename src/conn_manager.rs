@@ -22,8 +22,7 @@ pub(crate) fn with_connection<F, R>(fun: F) -> R
 where
     F: Fn(&Connection) -> R,
 {
-    let pool = DB_POOL.clone();
-    let connection = pool.get().unwrap();
+    let connection = DB_POOL.get().unwrap();
     fun(&connection)
 }
 
@@ -31,6 +30,5 @@ pub(crate) fn with_connection_result<F, R>(fun: F) -> R
 where
     F: Fn(Result<Connection, r2d2::Error>) -> R,
 {
-    let pool = DB_POOL.clone();
-    fun(pool.get())
+    fun(DB_POOL.get())
 }
