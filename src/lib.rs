@@ -5,24 +5,10 @@ extern crate lazy_static;
 
 mod models;
 mod schema;
+mod conn_manager;
 
-use diesel::{
-    pg::PgConnection,
-    r2d2::{ConnectionManager, Pool},
-};
-
+use conn_manager::*;
 use std::{env, ffi::CString};
-
-lazy_static! {
-    static ref DB_POOL: Pool<ConnectionManager<PgConnection>> = {
-        let url = env::var("DATABASE_URL").unwrap();
-        let manager = ConnectionManager::<PgConnection>::new(url);
-
-        Pool::builder()
-            .build(manager)
-            .expect("Could not build connection pool")
-    };
-}
 
 #[no_mangle]
 extern "C" fn db_url() -> *mut i8 {
@@ -33,9 +19,7 @@ extern "C" fn db_url() -> *mut i8 {
 
 #[no_mangle]
 extern "C" fn connection_ok() -> bool {
-    let pool = DB_POOL.clone();
-    let connection = pool.get();
-    connection.is_ok()
+    with_connection_result(|result| result.is_ok())
 }
 
 #[no_mangle]
@@ -43,10 +27,9 @@ extern "C" fn find_post(id_val: i32) -> *mut models::RubyPost {
     use self::diesel::prelude::*;
     use self::schema::posts::dsl::*;
 
-    let pool = DB_POOL.clone();
-    let connection = pool.get().unwrap();
-
-    let maybe_post = posts.find(id_val).first::<models::Post>(&connection);
+    let maybe_post = with_connection(|conn| {
+        posts.find(id_val).first::<models::Post>(conn)
+    });
 
     if maybe_post.is_ok() {
         return Box::into_raw(Box::new(maybe_post.unwrap().into()));
