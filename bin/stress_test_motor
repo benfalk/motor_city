@@ -6,9 +6,9 @@ require "motor_city"
 
 KNOWN_IDS = [1, 2, 3].freeze
 
-threads = (1..50).map do |num|
+threads = (1..5).map do |num|
   Thread.new do
-    300.times do
+    3000.times do
       post = MotorCity::Post.find(KNOWN_IDS.sample)
       puts "[#{num}] #{post[:title]}"
     end

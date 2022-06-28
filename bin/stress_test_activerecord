@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "dotenv/load"
+require "active_record"
+
+ActiveRecord::Base.establish_connection(
+  ENV.fetch("DATABASE_URL", nil)
+)
+
+class Post < ActiveRecord::Base
+end
+
+KNOWN_IDS = [1, 2, 3].freeze
+
+threads = (1..5).map do |num|
+  Thread.new do
+    3000.times do
+      post = Post.find(KNOWN_IDS.sample)
+      puts "[#{num}] #{post.title}"
+    end
+  end
+end
+
+threads.each(&:join)

@@ -36,3 +36,21 @@
    ```bash
    bundle exec rake
    ```
+
+## Comparison to ActiveRecord
+
+```
+time ./bin/stress_test_motor > /dev/null
+
+real    0m1.581s
+user    0m1.168s
+sys     0m2.307s
+```
+
+```
+time ./bin/stress_test_activerecord > /dev/null
+
+real    0m4.152s
+user    0m3.004s
+sys     0m1.797s
+```
