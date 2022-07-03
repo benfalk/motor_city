@@ -1,14 +1,12 @@
 #[macro_use]
 extern crate diesel;
-#[macro_use]
-extern crate lazy_static;
 
+mod conn_manager;
 mod models;
 mod schema;
-mod conn_manager;
 
 use conn_manager::*;
-use std::{env, ffi::CString};
+use std::{env, ffi::CString, os::raw::c_char};
 
 #[no_mangle]
 extern "C" fn db_url() -> *mut i8 {
@@ -18,18 +16,42 @@ extern "C" fn db_url() -> *mut i8 {
 }
 
 #[no_mangle]
-extern "C" fn connection_ok() -> bool {
-    with_connection_result(|result| result.is_ok())
+extern "C" fn connection_ok(pool: *mut DbPool) -> bool {
+    if pool.is_null() {
+        return false;
+    }
+
+    let result = connection_from_pool(pool);
+
+    result.is_ok()
 }
 
 #[no_mangle]
-extern "C" fn find_post(id_val: i32) -> *mut models::RubyPost {
+extern "C" fn establish_connection(db_url: *mut c_char) -> *mut DbPool {
+    let db_url = unsafe { CString::from_raw(db_url) };
+
+    let db_url = match db_url.clone().into_string() {
+        Err(_) => return std::ptr::null_mut(),
+        Ok(string) => {
+            let _ = db_url.into_raw();
+            string
+        }
+    };
+
+    match get_pool(db_url) {
+        Err(_) => std::ptr::null_mut(),
+        Ok(pool) => Box::into_raw(Box::new(pool)),
+    }
+}
+
+#[no_mangle]
+extern "C" fn find_post_with_pool(id_val: i32, pool: *mut DbPool) -> *mut models::RubyPost {
     use self::diesel::prelude::*;
     use self::schema::posts::dsl::*;
 
-    let maybe_post = with_connection(|conn| {
-        posts.find(id_val).first::<models::Post>(conn)
-    });
+    let conn = connection_from_pool(pool).unwrap();
+
+    let maybe_post = posts.find(id_val).first::<models::Post>(&conn);
 
     if maybe_post.is_ok() {
         return Box::into_raw(Box::new(maybe_post.unwrap().into()));

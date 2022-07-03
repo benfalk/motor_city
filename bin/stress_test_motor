@@ -4,6 +4,8 @@
 require "bundler/setup"
 require "motor_city"
 
+MotorCity.establish_connection
+
 KNOWN_IDS = [1, 2, 3].freeze
 
 threads = (1..5).map do |num|

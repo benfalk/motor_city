@@ -15,7 +15,7 @@ module MotorCity
 
     # @return [MotorCity::Post, nil]
     def self.find(id)
-      pointer = FFI.find_post(id)
+      pointer = FFI.find_post_with_pool(id, MotorCity.connection)
       return if pointer.null?
 
       new(pointer)

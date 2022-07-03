@@ -7,7 +7,7 @@ RSpec.describe MotorCity::FFI do
   end
 
   describe "#connection_ok" do
-    subject { described_class.connection_ok }
+    subject { described_class.connection_ok(MotorCity.connection) }
     it { is_expected.to be(true) }
   end
 end
