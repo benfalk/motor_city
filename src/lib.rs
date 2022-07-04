@@ -40,19 +40,21 @@ extern "C" fn establish_connection(db_url: *mut c_char) -> *mut RubyResult<DbPoo
 }
 
 #[no_mangle]
-extern "C" fn find_post_with_pool(id_val: i32, pool: *mut DbPool) -> *mut models::RubyPost {
+extern "C" fn find_post_with_pool(id_val: i32, pool: *mut DbPool) -> *mut RubyResult<models::RubyPost> {
     use self::diesel::prelude::*;
     use self::schema::posts::dsl::*;
+    use diesel::result::Error::*;
 
-    let conn = connection_from_pool(pool).unwrap();
+    let conn = match connection_from_pool(pool) {
+        Ok(conn) => conn,
+        Err(error) => return result::error(&format!("{error}")),
+    };
 
-    let maybe_post = posts.find(id_val).first::<models::Post>(&conn);
-
-    if maybe_post.is_ok() {
-        return Box::into_raw(Box::new(maybe_post.unwrap().into()));
+    match posts.find(id_val).first::<models::Post>(&conn) {
+        Ok(post) => result::ok(post.into()),
+        Err(NotFound) => std::ptr::null_mut(),
+        Err(other) => result::error(&format!("{other}"))
     }
-
-    std::ptr::null_mut()
 }
 
 #[no_mangle]

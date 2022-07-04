@@ -9,8 +9,8 @@ module MotorCity
            :published, :bool
 
     # @return [nil]
-    def self.release(ptr)
-      FFI.free_post(ptr)
+    def self.release(result_ptr)
+      FFI.free_post(result_ptr)
     end
 
     # @return [MotorCity::Post, nil]
@@ -18,7 +18,7 @@ module MotorCity
       pointer = FFI.find_post_with_pool(id, MotorCity.connection)
       return if pointer.null?
 
-      new(pointer)
+      FFI::Result.unwrap!(pointer, self)
     end
   end
 end

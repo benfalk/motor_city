@@ -58,3 +58,7 @@ sys     0m1.797s
 ## Surfacing Errors from Rust
 
 <img src="./media/surfacing-errors-from-rust.png" />
+
+<hr />
+
+<img src="./media/surfacing-find-errors-from-rust.png" />

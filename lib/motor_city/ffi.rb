@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "ffi/connection_result"
+require_relative "ffi/result"
 
 module MotorCity
   # Foreign Function Interface
