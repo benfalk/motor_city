@@ -2,18 +2,13 @@
 extern crate diesel;
 
 mod conn_manager;
+mod result;
 mod models;
 mod schema;
 
 use conn_manager::*;
-use std::{env, ffi::CString, os::raw::c_char};
-
-#[no_mangle]
-extern "C" fn db_url() -> *mut i8 {
-    let bytes = env::var("DATABASE_URL").unwrap_or_default().into_bytes();
-    let url = unsafe { CString::from_vec_unchecked(bytes) };
-    url.into_raw()
-}
+use result::RubyResult;
+use std::{ffi::CString, os::raw::c_char};
 
 #[no_mangle]
 extern "C" fn connection_ok(pool: *mut DbPool) -> bool {
@@ -27,11 +22,11 @@ extern "C" fn connection_ok(pool: *mut DbPool) -> bool {
 }
 
 #[no_mangle]
-extern "C" fn establish_connection(db_url: *mut c_char) -> *mut DbPool {
+extern "C" fn establish_connection(db_url: *mut c_char) -> *mut RubyResult {
     let db_url = unsafe { CString::from_raw(db_url) };
 
     let db_url = match db_url.clone().into_string() {
-        Err(_) => return std::ptr::null_mut(),
+        Err(_) => return result::error::<DbPool>("cannot convert db url"),
         Ok(string) => {
             let _ = db_url.into_raw();
             string
@@ -39,8 +34,8 @@ extern "C" fn establish_connection(db_url: *mut c_char) -> *mut DbPool {
     };
 
     match get_pool(db_url) {
-        Err(_) => std::ptr::null_mut(),
-        Ok(pool) => Box::into_raw(Box::new(pool)),
+        Err(err) =>  result::error::<DbPool>(&format!("{err}")),
+        Ok(pool) => result::ok(pool),
     }
 }
 
@@ -73,4 +68,10 @@ extern "C" fn free_post(post_ptr: *mut models::RubyPost) {
         std::mem::drop(title);
         std::mem::drop(body);
     }
+}
+
+#[no_mangle]
+extern "C" fn free_result(result_ptr: *mut RubyResult) {
+    let result = unsafe { Box::from_raw(result_ptr) };
+    result.free();
 }

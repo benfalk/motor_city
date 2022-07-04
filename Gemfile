@@ -11,6 +11,8 @@ gem "dotenv", "~> 2.7"
 
 gem "pg"
 
+gem "pry", "~> 0.14"
+
 gem "rake", "~> 13.0"
 
 gem "rspec", "~> 3.0"

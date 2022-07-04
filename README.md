@@ -54,3 +54,7 @@ real    0m4.152s
 user    0m3.004s
 sys     0m1.797s
 ```
+
+## Surfacing Errors from Rust
+
+<img src="./media/surfacing-errors-from-rust.png" />

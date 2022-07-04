@@ -17,9 +17,14 @@ module MotorCity
   # @param db_url [String] db config url to use
   # @return [nil]
   def self.establish_connection(db_url = ENV.fetch("DATABASE_URL", ""))
-    @connection = FFI.establish_connection(db_url)
+    result_ptr = FFI.establish_connection(db_url)
+    result = FFI::ConnectionResult.new(result_ptr)
+    raise Error, result[:value].read_string unless result[:status].zero?
 
+    @connection = result[:value]
     nil
+  ensure
+    FFI.free_result(result_ptr)
   end
 
   # Determines if the provided connection is working
