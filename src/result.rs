@@ -8,37 +8,43 @@ pub enum Status {
 }
 
 #[repr(C)]
-pub struct RubyResult {
-    status: Status,
-    value: *mut u8,
+pub union ResultValue<T> {
+    error_msg: *mut c_char,
+    result: *mut T,
 }
 
-pub fn ok<T>(result: T) -> *mut RubyResult {
+#[repr(C)]
+pub struct RubyResult<T> {
+    status: Status,
+    value: ResultValue<T>,
+}
+
+pub fn ok<T>(result: T) -> *mut RubyResult<T> {
     let result = Box::into_raw(Box::new(result));
 
     RubyResult {
         status: Status::Success,
-        value: result as *mut u8,
+        value: ResultValue { result },
     }.to_ptr()
 }
 
-pub fn error<T>(message: &str) -> *mut RubyResult {
+pub fn error<T>(message: &str) -> *mut RubyResult<T> {
     let error_msg = CString::new(message).unwrap().into_raw();
 
     RubyResult {
         status: Status::Failure,
-        value: error_msg as *mut u8,
+        value: ResultValue { error_msg },
     }.to_ptr()
 }
 
-impl RubyResult {
+impl <T> RubyResult<T> {
     fn to_ptr(self) -> *mut Self {
         Box::into_raw(Box::new(self))
     }
 
     pub fn free(self) {
         if self.status != Status::Success {
-            unsafe { CString::from_raw(self.value as *mut c_char) };
+            unsafe { CString::from_raw(self.value.error_msg) };
         }
     }
 }

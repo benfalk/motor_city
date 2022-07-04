@@ -22,11 +22,11 @@ extern "C" fn connection_ok(pool: *mut DbPool) -> bool {
 }
 
 #[no_mangle]
-extern "C" fn establish_connection(db_url: *mut c_char) -> *mut RubyResult {
+extern "C" fn establish_connection(db_url: *mut c_char) -> *mut RubyResult<DbPool> {
     let db_url = unsafe { CString::from_raw(db_url) };
 
     let db_url = match db_url.clone().into_string() {
-        Err(_) => return result::error::<DbPool>("cannot convert db url"),
+        Err(_) => return result::error("cannot convert db url"),
         Ok(string) => {
             let _ = db_url.into_raw();
             string
@@ -34,7 +34,7 @@ extern "C" fn establish_connection(db_url: *mut c_char) -> *mut RubyResult {
     };
 
     match get_pool(db_url) {
-        Err(err) =>  result::error::<DbPool>(&format!("{err}")),
+        Err(err) =>  result::error(&format!("{err}")),
         Ok(pool) => result::ok(pool),
     }
 }
@@ -71,7 +71,7 @@ extern "C" fn free_post(post_ptr: *mut models::RubyPost) {
 }
 
 #[no_mangle]
-extern "C" fn free_result(result_ptr: *mut RubyResult) {
-    let result = unsafe { Box::from_raw(result_ptr) };
+extern "C" fn free_result(result_ptr: *mut u8) {
+    let result = unsafe { Box::from_raw(result_ptr as *mut RubyResult<u8>) };
     result.free();
 }
