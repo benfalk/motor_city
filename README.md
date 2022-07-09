@@ -7,7 +7,7 @@
 ## Requirements
 
  * Ruby 2.7.5+ or 3.1.1+
- * Rust 1.60.0+
+ * Rust 1.60.0+ (nightly)
  * Postgres 11+
 
 ## Getting Ready
@@ -62,3 +62,7 @@ sys     0m1.797s
 <hr />
 
 <img src="./media/surfacing-find-errors-from-rust.png" />
+
+## Fetching a Collection
+
+<img src="./media/fetching-a-collection.png" />

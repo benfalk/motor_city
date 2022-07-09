@@ -20,5 +20,11 @@ module MotorCity
 
       FFI::Result.unwrap!(pointer, self)
     end
+
+    def self.all
+      result_ptr = FFI.all_post_with_pool(MotorCity.connection)
+      array_ptr = FFI::Result.unwrap_pointer!(result_ptr)
+      FFI::Array.unwrap!(array_ptr, self)
+    end
   end
 end

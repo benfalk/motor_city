@@ -1,11 +1,15 @@
+#![feature(vec_into_raw_parts)]
+
 #[macro_use]
 extern crate diesel;
 
+mod array;
 mod conn_manager;
-mod result;
 mod models;
+mod result;
 mod schema;
 
+use array::Array;
 use conn_manager::*;
 use result::RubyResult;
 use std::{ffi::CString, os::raw::c_char};
@@ -34,13 +38,16 @@ extern "C" fn establish_connection(db_url: *mut c_char) -> *mut RubyResult<DbPoo
     };
 
     match get_pool(db_url) {
-        Err(err) =>  result::error(&format!("{err}")),
+        Err(err) => result::error(&format!("{err}")),
         Ok(pool) => result::ok(pool),
     }
 }
 
 #[no_mangle]
-extern "C" fn find_post_with_pool(id_val: i32, pool: *mut DbPool) -> *mut RubyResult<models::RubyPost> {
+extern "C" fn find_post_with_pool(
+    id_val: i32,
+    pool: *mut DbPool,
+) -> *mut RubyResult<models::RubyPost> {
     use self::diesel::prelude::*;
     use self::schema::posts::dsl::*;
     use diesel::result::Error::*;
@@ -53,7 +60,29 @@ extern "C" fn find_post_with_pool(id_val: i32, pool: *mut DbPool) -> *mut RubyRe
     match posts.find(id_val).first::<models::Post>(&conn) {
         Ok(post) => result::ok(post.into()),
         Err(NotFound) => std::ptr::null_mut(),
-        Err(other) => result::error(&format!("{other}"))
+        Err(other) => result::error(&format!("{other}")),
+    }
+}
+
+#[no_mangle]
+extern "C" fn all_post_with_pool(pool: *mut DbPool) -> *mut RubyResult<Array<models::RubyPost>> {
+    use self::diesel::prelude::*;
+    use self::schema::posts::dsl::*;
+
+    let conn = match connection_from_pool(pool) {
+        Ok(conn) => conn,
+        Err(error) => return result::error(&format!("{error}")),
+    };
+
+    match posts.load::<models::Post>(&conn) {
+        Ok(mut post_collection) => result::ok(
+            post_collection
+                .drain(..)
+                .map(|post| post.into())
+                .collect::<Vec<models::RubyPost>>()
+                .into(),
+        ),
+        Err(error) => result::error(&format!("{error}")),
     }
 }
 
@@ -76,4 +105,10 @@ extern "C" fn free_post(post_ptr: *mut models::RubyPost) {
 extern "C" fn free_result(result_ptr: *mut u8) {
     let result = unsafe { Box::from_raw(result_ptr as *mut RubyResult<u8>) };
     result.free();
+}
+
+#[no_mangle]
+extern "C" fn free_array(ptr: *mut u8) {
+    let collection = unsafe { Box::from_raw(ptr as *mut Array<u8>) };
+    collection.free();
 }

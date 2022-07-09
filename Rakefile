@@ -11,7 +11,7 @@ require "rubocop/rake_task"
 RuboCop::RakeTask.new
 
 task :rust_build do
-  `cargo rustc --release`
+  `rustup run nightly cargo build --release`
   `mv -f ./target/release/libmotor_city.#{::FFI::Platform::LIBSUFFIX} ./lib/motor_city/`
 end
 

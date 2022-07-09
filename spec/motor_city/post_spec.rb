@@ -17,4 +17,11 @@ RSpec.describe MotorCity::Post do
       it { is_expected.to be_nil }
     end
   end
+
+  describe "#all" do
+    subject { described_class.all }
+
+    its(:size) { is_expected.to eq(3) }
+    it { is_expected.to all(be_a(MotorCity::Post)) }
+  end
 end
